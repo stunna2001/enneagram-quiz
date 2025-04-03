@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enneagram Quiz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 2em;
+      background-color: #f9f9f9;
+    }
+    .question {
+      margin-bottom: 2em;
+    }
+    .answers label {
+      display: block;
+      margin-bottom: 0.5em;
+    }
+    .result {
+      margin-top: 2em;
+      padding: 1em;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+    .lang-toggle {
+      margin-bottom: 2em;
+      text-align: right;
+    }
+    .lang-toggle button {
+      margin-left: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lang-toggle">
+    <span>Language / Idioma:</span>
+    <button onclick="setLanguage('en')">English</button>
+    <button onclick="setLanguage('es')">Español</button>
+  </div>
+
+  <form id="quizForm">
+    <div id="questionsContainer"></div>
+    <button type="submit">Submit / Enviar</button>
+  </form>
+
+  <div id="result" class="result" style="display:none;"></div>
+
+  <script>
+    const questions = [
+      {
+        en: "When under stress, you tend to:",
+        es: "Cuando estás bajo estrés, tiendes a:",
+        answers: [
+          { en: "Be highly self-critical", es: "Ser muy autocrítico", types: [1] },
+          { en: "Help others to feel needed", es: "Ayudar a otros para sentirte necesitado", types: [2] },
+          { en: "Distract yourself by staying busy", es: "Distraerte manteniéndote ocupado", types: [3] },
+          { en: "Withdraw and analyze your feelings", es: "Retirarte y analizar tus sentimientos", types: [5] }
+        ]
+      },
+      {
+        en: "Which description fits you best?",
+        es: "¿Cuál descripción encaja mejor contigo?",
+        answers: [
+          { en: "Principled and organized", es: "Íntegro y organizado", types: [1] },
+          { en: "Empathetic and generous", es: "Empático y generoso", types: [2] },
+          { en: "Confident and ambitious", es: "Seguro y ambicioso", types: [3] },
+          { en: "Peaceful and accommodating", es: "Pacífico y complaciente", types: [9] }
+        ]
+      },
+      {
+        en: "You are most driven by:",
+        es: "Estás más motivado por:",
+        answers: [
+          { en: "Doing things right", es: "Hacer las cosas bien", types: [1] },
+          { en: "Being loved", es: "Ser amado", types: [2] },
+          { en: "Achieving success", es: "Lograr el éxito", types: [3] },
+          { en: "Understanding the world", es: "Entender el mundo", types: [5] }
+        ]
+      },
+      {
+        en: "In relationships, you tend to:",
+        es: "En las relaciones, tiendes a:",
+        answers: [
+          { en: "Take charge and protect others", es: "Tomar el control y proteger a los demás", types: [8] },
+          { en: "Please others and seek harmony", es: "Complacer a otros y buscar armonía", types: [9] },
+          { en: "Seek deep emotional connection", es: "Buscar una conexión emocional profunda", types: [4] },
+          { en: "Keep things light and positive", es: "Mantener las cosas ligeras y positivas", types: [7] }
+        ]
+      },
+      {
+        en: "Your biggest fear is:",
+        es: "Tu mayor miedo es:",
+        answers: [
+          { en: "Being wrong or unethical", es: "Estar equivocado o ser poco ético", types: [1] },
+          { en: "Being unloved or unwanted", es: "No ser amado o ser rechazado", types: [2] },
+          { en: "Being worthless or a failure", es: "No tener valor o fracasar", types: [3] },
+          { en: "Being controlled by others", es: "Ser controlado por otros", types: [8] }
+        ]
+      },
+      {
+        en: "You tend to handle conflict by:",
+        es: "Tiendes a manejar el conflicto:",
+        answers: [
+          { en: "Avoiding it", es: "Evitándolo", types: [9] },
+          { en: "Facing it head-on", es: "Enfrentándolo de frente", types: [8] },
+          { en: "Trying to fix and mediate", es: "Tratando de arreglar y mediar", types: [2] },
+          { en: "Becoming analytical and detached", es: "Volviéndote analítico y distante", types: [5] }
+        ]
+      },
+      {
+        en: "You are often seen as:",
+        es: "A menudo eres visto como:",
+        answers: [
+          { en: "Intense and emotional", es: "Intenso y emocional", types: [4] },
+          { en: "Energetic and adventurous", es: "Energético y aventurero", types: [7] },
+          { en: "Calm and easygoing", es: "Tranquilo y relajado", types: [9] },
+          { en: "Direct and assertive", es: "Directo y asertivo", types: [8] }
+        ]
+      },
+      {
+        en: "You are most comfortable when:",
+        es: "Te sientes más cómodo cuando:",
+        answers: [
+          { en: "Things are peaceful and stable", es: "Las cosas son pacíficas y estables", types: [9] },
+          { en: "You're helping others", es: "Estás ayudando a otros", types: [2] },
+          { en: "You're learning and researching", es: "Estás aprendiendo e investigando", types: [5] },
+          { en: "You're expressing your creativity", es: "Estás expresando tu creatividad", types: [4] }
+        ]
+      },
+      {
+        en: "People admire you for:",
+        es: "Las personas te admiran por:",
+        answers: [
+          { en: "Your honesty and integrity", es: "Tu honestidad e integridad", types: [1] },
+          { en: "Your confidence and drive", es: "Tu confianza y motivación", types: [3] },
+          { en: "Your kindness and support", es: "Tu amabilidad y apoyo", types: [2] },
+          { en: "Your uniqueness and depth", es: "Tu singularidad y profundidad", types: [4] }
+        ]
+      },
+      {
+        en: "You feel most fulfilled when:",
+        es: "Te sientes más realizado cuando:",
+        answers: [
+          { en: "You’re free to explore and have fun", es: "Eres libre de explorar y divertirte", types: [7] },
+          { en: "You're emotionally understood", es: "Eres comprendido emocionalmente", types: [4] },
+          { en: "You’re doing meaningful work", es: "Estás haciendo un trabajo significativo", types: [1, 3] },
+          { en: "You're deeply connected to others", es: "Estás profundamente conectado con otros", types: [2, 9] }
+        ]
+      }
+    ];
+
+    const typeDescriptions = {
+      1: {
+        en: "You are a Type 1 – The Reformer. Principled, purposeful, and self-controlled. You strive to do the right thing.",
+        es: "Eres un Tipo 1 – El Reformador. Íntegro, con propósito y autocontrolado. Te esfuerzas por hacer lo correcto."
+      },
+      2: {
+        en: "You are a Type 2 – The Helper. Caring, interpersonal, and generous. You find meaning in being there for others.",
+        es: "Eres un Tipo 2 – El Ayudador. Solidario, interpersonal y generoso. Encuentras significado en ayudar a los demás."
+      },
+      3: {
+        en: "You are a Type 3 – The Achiever. Adaptable, driven, and image-conscious. You pursue goals and success.",
+        es: "Eres un Tipo 3 – El Triunfador. Adaptable, motivado y consciente de tu imagen. Persigues el éxito."
+      },
+      4: {
+        en: "You are a Type 4 – The Individualist. Sensitive, introspective, and expressive. You value authenticity and depth.",
+        es: "Eres un Tipo 4 – El Individualista. Sensible, introspectivo y expresivo. Valoras la autenticidad y la profundidad."
+      },
+      5: {
+        en: "You are a Type 5 – The Investigator. Perceptive, analytical, and curious. You seek understanding and knowledge.",
+        es: "Eres un Tipo 5 – El Investigador. Perceptivo, analítico y curioso. Buscas comprensión y conocimiento."
+      },
+      6: {
+        en: "You are a Type 6 – The Loyalist. Committed, security-oriented, and responsible. You value loyalty and support.",
+        es: "Eres un Tipo 6 – El Leal. Comprometido, orientado a la seguridad y responsable. Valorás la lealtad y el apoyo."
+      },
+      7: {
+        en: "You are a Type 7 – The Enthusiast. Spontaneous, versatile, and fun-loving. You seek variety and excitement.",
+        es: "Eres un Tipo 7 – El Entusiasta. Espontáneo, versátil y amante de la diversión. Buscas variedad y emoción."
+      },
+      8: {
+        en: "You are a Type 8 – The Challenger. Strong, assertive, and protective. You are driven to be independent and in control.",
+        es: "Eres un Tipo 8 – El Desafiador. Fuerte, asertivo y protector. Te impulsa ser independiente y tener el control."
+      },
+      9: {
+        en: "You are a Type 9 – The Peacemaker. Receptive, reassuring, and agreeable. You seek harmony and avoid conflict.",
+        es: "Eres un Tipo 9 – El Pacificador. Receptivo, tranquilizador y conciliador. Buscas armonía y evitas el conflicto."
+      }
+    };
+
+    let currentLang = 'en';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById("questionsContainer");
+      container.innerHTML = "";
+      questions.forEach((q, index) => {
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `<strong>Q${index + 1}: ${q[currentLang]}</strong>`;
+        const answers = document.createElement("div");
+        answers.className = "answers";
+        q.answers.forEach((a, i) => {
+          const id = `q${index}_a${i}`;
+          answers.innerHTML += `
+            <label>
+              <input type="radio" name="q${index}" value="${i}" required />
+              ${a[currentLang]}
+            </label>`;
+        });
+        div.appendChild(answers);
+        container.appendChild(div);
+      });
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      const formData = new FormData(document.getElementById("quizForm"));
+      const scores = {};
+      for (let i = 0; i < questions.length; i++) {
+        const selected = formData.get(`q${i}`);
+        if (selected !== null) {
+          const types = questions[i].answers[selected].types;
+          types.forEach(type => {
+            scores[type] = (scores[type] || 0) + 1;
+          });
+        }
+      }
+      const topType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = `<h3>${typeDescriptions[topType][currentLang]}</h3>`;
+      resultDiv.style.display = "block";
+      resultDiv.scrollIntoView({ behavior: "smooth" });
+    }
+
+    document.getElementById("quizForm").addEventListener("submit", handleSubmit);
+    renderQuestions();
+  </script>
+</body>
+</html>
